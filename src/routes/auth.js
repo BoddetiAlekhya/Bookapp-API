@@ -5,10 +5,10 @@ const router = express.Router();
 
 router.post("/", (req,res) => {
     const {credentials} = req.body;
-    console.log(credentials);
+    // console.log(credentials);
     
     User.findOne({email: credentials.email}).then(user => {
-        console.log("user",user);
+        // console.log("user",user);
         
         if(user && user.isValidPassword(credentials.password)){
             res.json({user: {email: user.email}})
