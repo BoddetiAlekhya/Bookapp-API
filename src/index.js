@@ -6,6 +6,7 @@ import path from 'path'
 import mongoose from 'mongoose';
 import auth from './routes/auth';
 import users from './routes/users'
+import books from './routes/books'
 
 
 dotenv.config();
@@ -16,6 +17,7 @@ mongoose.connect(process.env.MONGODB_URL,{useMongoClient: true})
 
 app.use('/api/auth',auth);
 app.use('/api/users',users);
+app.use('/api/books',books);
 
 // app.post('/api/auth', (req,res) => {
 //     res.status(400).json({errors: {global: "Invalid Credentials"}})
