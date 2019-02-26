@@ -22,7 +22,8 @@ schema.methods.isValidPassword = function isValidPassword(password){
 
 schema.methods.generateJWT = function generateJWT(){
     return jwt.sign({
-        email: this.email
+        email: this.email,
+        confirmed: this.confirmed
     }, process.env.JWT_SECRET
     );
 };
@@ -46,6 +47,19 @@ schema.methods.toAuthJSON = function toAuthJSON() {
     token: this.generateJWT()
 
 }
+};
+
+schema.methods.generateResetPasswordLink = function generateResetPasswordLink(){
+    return `${process.env.HOST}/reset_password/${this.generateResetPasswordToken()}`
+};
+
+schema.methods.generateResetPasswordToken = function generateResetPasswordToken(){
+    return jwt.sign(
+        {
+        _id: this._id
+    }, process.env.JWT_SECRET,
+    {expiresIn: "1h"}
+    );
 };
 
 schema.plugin(uniqueValidator,{message: 'This Email is already taken'})
