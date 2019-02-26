@@ -1,4 +1,5 @@
 import express from 'express'
+import jwt from 'jsonwebtoken'
 import User from '../models/User'
 import {sendResetPasswordEmail} from '../mailer'
 
@@ -25,8 +26,8 @@ router.post("/confirmation", (req,res) => {
 });
 
 router.post("/reset_password_request", (req,res) => {
-    
-    User.findOne({email: req.body.emai}).then(user => {
+    console.log("test ale")
+    User.findOne({email: req.body.email}).then(user => {
         if(user){
             sendResetPasswordEmail(user);
             res.json({});
@@ -34,6 +35,35 @@ router.post("/reset_password_request", (req,res) => {
             res.status(400).json({errors: {global: 'There is no such user'}});
         }
         });
+});
+
+router.post("/validate_token", (req,res) => {
+   jwt.verify(req.body.token,process.env.JWT_SECRET, err => {
+       if(err) {
+           res.status(401).json({});
+       }else{
+           res.json({});
+       }
+   }) 
+   
+});
+
+router.post("/reset_password", (req,res) => {
+    const {password,token} = req.body.data;
+    jwt.verify(token, process.env.JWT_SECRET,(err,decoded) => {
+        if(err){
+            res.status(401).json({errors: {global: "Invalid token"}});
+        } else{
+            User.findOne({_id: decoded._id}).then(user => {
+                if(user) {
+                    user.setPassword(password);
+                    user.save().then(() => res.json({}));
+                } else{
+                    res.status(404).json({errors: {global: "Invalid"}});
+                }
+            })
+        }
+})
 });
 
 export default router;
